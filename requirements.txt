@@ -1,0 +1,19 @@
+# Installs this project as a library so `import backend`, `import logger` etc. work anywhere
+-e .
+
+# Backend
+fastapi
+uvicorn[standard]
+pydantic-settings
+
+# Database
+sqlalchemy[asyncio]
+asyncpg
+alembic
+redis
+
+# Dev
+pytest
+pytest-asyncio
+httpx
+ruff

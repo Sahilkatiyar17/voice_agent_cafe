@@ -1,0 +1,52 @@
+# Secrets and local settings (keep .env.example)
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Logs (created by logger/)
+logs/
+*.log
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+.next/
+npm-debug.log*
+
+# Audio and recordings (Phase 1 experiments)
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+recordings/
+
+# Local data and caches
+*.sqlite
+*.sqlite3
+*.db
+.cache/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Claude Code local settings
+.claude/settings.local.json

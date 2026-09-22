@@ -12,6 +12,20 @@ asyncpg
 alembic
 redis
 
+# Phase 1: audio lab
+librosa
+soundfile
+matplotlib
+torch
+torchaudio
+jupyter
+groq
+faster-whisper
+edge-tts
+gTTS
+requests
+nest-asyncio
+
 # Dev
 pytest
 pytest-asyncio

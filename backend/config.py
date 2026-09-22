@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     nvidia_api_key: str = ""
 
+    # Optional, only needed for the Phase 1 STT/TTS provider comparison
+    huggingface_api_key: str = ""
+    elevenlabs_api_key: str = ""
+
     @property
     def database_url(self) -> str:
         return (

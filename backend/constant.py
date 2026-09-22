@@ -1,5 +1,9 @@
 """Fixed (non-secret) values for the backend. Secrets and per-machine values live in .env."""
 
+# Cafe identity (used in get_business_info, and later the agent's opening line)
+CAFE_NAME = "Saffron & Seoul"
+CAFE_ADDRESS = "12th Main Road, Indiranagar, Bengaluru 560038"
+
 # Time
 TIMEZONE = "Asia/Kolkata"  # store UTC, show this zone
 

@@ -274,7 +274,30 @@ General lesson: read the error's last line first. It usually names the real caus
 
 ---
 
-## 15. Glossary
+## 15. Phase 2 tools: what exists and two real bugs it caught
+
+`backend/tools/` now has `menu_cache.py`, `search_menu.py`, `reservations.py`, `orders.py`,
+`business_info.py` - every tool the plan lists for Phase 2. I wrote them, then ran a scripted
+check against the live dev DB (28 checks: search matching, the double-booking race, hold
+expiry, modifier group conflicts, minimum order, sold-out re-check at confirm, idempotent
+confirm). Two real bugs turned up, worth remembering because they're the kind that only
+show up when you actually run the code, not when reading it:
+
+- **`hold_slot` crashed with `MissingGreenlet`** after losing a race for one table and
+  trying the next candidate. Cause: `session.rollback()` expires every ORM object tied to
+  that session, and touching an expired object's attribute (`table.id`) afterwards tries to
+  silently reload it from the DB - async SQLAlchemy can't do that implicitly, only via an
+  explicit `await`. Fix: read `table.id`/`table.name` into plain values *before* the loop
+  that might roll back, and never touch the ORM object again after a rollback.
+- **`search_menu` scored a gibberish query as a "near match"** against "glass noodles" -
+  `rapidfuzz`'s `WRatio` blends several ratio strategies and can score unrelated short
+  strings surprisingly high. Fixed by raising `MIN_THRESHOLD` from 45 to 55; still just a
+  hand-picked number, not something measured against real conversations yet (that's Phase 3).
+
+General lesson: an `AsyncSession` object becomes unsafe to touch after `rollback()` or
+`commit()` unless you re-fetch or already captured what you needed as plain data first.
+
+## 16. Glossary
 
 - **Container:** an isolated running program. **Image:** its template.
 - **Migration:** a versioned schema change.

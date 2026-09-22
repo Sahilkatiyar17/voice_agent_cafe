@@ -1,14 +1,26 @@
 import sys
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.api.routers import business, menu, orders, reservations
 from backend.constant import API_TITLE, CORS_ORIGINS
+from backend.tools.menu_cache import menu_cache
 from database.connection import check_postgres, check_redis
 from exception import CafeException
 from logger import logging
 
-app = FastAPI(title=API_TITLE)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # search_menu reads from this cache, not the DB, on every call - it must be loaded
+    # before any request comes in.
+    await menu_cache.load()
+    yield
+
+
+app = FastAPI(title=API_TITLE, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,6 +28,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(menu.router)
+app.include_router(reservations.router)
+app.include_router(orders.router)
+app.include_router(business.router)
 
 
 @app.get("/health")

@@ -12,6 +12,9 @@ asyncpg
 alembic
 redis
 
+# Phase 2: tools (fuzzy menu matching)
+rapidfuzz
+
 # Phase 1: audio lab
 librosa
 soundfile

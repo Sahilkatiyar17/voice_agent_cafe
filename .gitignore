@@ -27,6 +27,9 @@ dist/
 .next/
 npm-debug.log*
 
+# Eval run transcripts (evals/run_scenarios.py) - runtime output, not source
+evals/transcripts/
+
 # Audio and recordings (Phase 1 experiments)
 *.wav
 *.mp3

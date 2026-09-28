@@ -15,6 +15,12 @@ redis
 # Phase 2: tools (fuzzy menu matching)
 rapidfuzz
 
+# Phase 3: LangGraph agent
+langgraph
+langchain-core
+langchain-groq
+langchain-openai  # also used for NVIDIA's OpenAI-compatible endpoint (AGENT_LLM_PROVIDER="nvidia")
+
 # Phase 1: audio lab
 librosa
 soundfile

@@ -1,5 +1,5 @@
 """
-Order tools: update_order (add/remove/change quantity), set_delivery_address,
+Order tools: update_order (add/remove/change quantity), cancel_order, set_delivery_address,
 get_order_summary, confirm_order.
 
 Rules these TOOLS must enforce (the database cannot):
@@ -21,6 +21,7 @@ from sqlalchemy.orm import selectinload
 from backend.constant import DELIVERY_FEE, FREE_DELIVERY_ABOVE, MIN_ORDER_VALUE
 from database.connection import async_session
 from database.models import (
+    ORDER_CANCELLED,
     ORDER_CONFIRMED,
     ORDER_DRAFT,
     Address,
@@ -279,6 +280,24 @@ async def update_order(
             raise ValueError("order_id and order_item_id are required to set quantity.")
         return await set_quantity(order_id, order_item_id, quantity)
     raise ValueError(f"Unknown action '{action}'. Use add_item, remove_item, or set_quantity.")
+
+
+async def cancel_order(order_id: int) -> dict:
+    """Idempotent: cancelling an already-cancelled order is a no-op success. Only a draft
+    order can be cancelled - a confirmed one is out of scope (docs/spec.md: "changing an
+    order after it is confirmed" needs a human)."""
+    async with async_session() as session:
+        order = await session.get(Order, order_id)
+        if order is None:
+            raise ValueError("No such order.")
+        if order.status == ORDER_CANCELLED:
+            return {"cancelled": True, "order_id": order.id}
+        if order.status != ORDER_DRAFT:
+            raise ValueError(f"Order is '{order.status}' - can't cancel.")
+        order.status = ORDER_CANCELLED
+        await session.commit()
+        logging.info("Cancelled order %s", order.id)
+        return {"cancelled": True, "order_id": order.id}
 
 
 # ============================================================

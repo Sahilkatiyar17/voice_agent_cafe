@@ -35,6 +35,35 @@ API_PORT = 8000
 # React dev server (Vite default port) is allowed to call the API
 CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
+# Phase 3: text agent. Provider is switchable so a quota-exhausted one doesn't block
+# testing - see backend/agent/llm.py. "groq", "nvidia", or "openrouter".
+AGENT_LLM_PROVIDER = "groq"
+AGENT_LLM_TEMPERATURE = 0.3
+
+# Groq (see restaurant_voice_agent_plan.md - chosen for its free tier)
+# llama-3.3-70b-versatile returned 404 "does not exist or you do not have access to it" as
+# of 2026-09-26 (deprecated or access-gated after this codebase's knowledge cutoff) -
+# switched to openai/gpt-oss-120b, confirmed live via Groq's own console listing, and it
+# supports tool calling. If Groq changes this again, check console.groq.com/docs/models
+# for the current list rather than guessing a name.
+GROQ_AGENT_MODEL = "openai/gpt-oss-120b"
+
+# NVIDIA (build.nvidia.com, OpenAI-compatible endpoint, free tier)
+# PLACEHOLDER - verify the exact model id on build.nvidia.com yourself: open a chat model
+# whose card says it supports function calling / tool use, and copy the exact `model=`
+# string from its API/code tab. Don't trust a guessed name here - the same way
+# llama-3.3-70b-versatile above turned out to be wrong once Groq moved on.
+NVIDIA_AGENT_MODEL = "nvidia/nemotron-3-ultra-550b-a55b"
+NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
+
+# OpenRouter (openrouter.ai, OpenAI-compatible endpoint, unified access to many providers'
+# models including some free-tier ones) - the actual route requested for Nemotron 3 Ultra.
+# PLACEHOLDER - same caveat as NVIDIA_AGENT_MODEL above: get the exact model id from the
+# model's page on openrouter.ai (its API tab shows the precise string, which may include a
+# ":free" suffix), don't trust a guessed name.
+OPENROUTER_AGENT_MODEL = "nvidia/nemotron-3-ultra-550b-a55b"
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
 # Latency target (milliseconds, end of speech to first audio)
 LATENCY_TARGET_P50_MS = 1000
 LATENCY_TARGET_P95_MS = 1500

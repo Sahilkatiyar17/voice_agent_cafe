@@ -4,6 +4,7 @@ from backend.api.errors import handle_tool_errors
 from backend.api.schemas import AddItemRequest, SetAddressRequest, SetQuantityRequest
 from backend.tools.orders import (
     add_item,
+    cancel_order,
     confirm_order,
     get_order_summary,
     remove_item,
@@ -52,3 +53,9 @@ async def get_order_endpoint(order_id: int):
 @handle_tool_errors
 async def confirm_order_endpoint(order_id: int):
     return await confirm_order(order_id)
+
+
+@router.post("/{order_id}/cancel")
+@handle_tool_errors
+async def cancel_order_endpoint(order_id: int):
+    return await cancel_order(order_id)

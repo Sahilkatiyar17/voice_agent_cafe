@@ -16,10 +16,16 @@ class Settings(BaseSettings):
 
     groq_api_key: str = ""
     nvidia_api_key: str = ""
+    openrouter_api_key: str = ""
 
     # Optional, only needed for the Phase 1 STT/TTS provider comparison
     huggingface_api_key: str = ""
     elevenlabs_api_key: str = ""
+
+    # Optional: LangSmith tracing for the Phase 3 agent. Off by default.
+    langsmith_tracing: bool = False
+    langsmith_api_key: str = ""
+    langsmith_project: str = "voice-agent-cafe"
 
     @property
     def database_url(self) -> str:

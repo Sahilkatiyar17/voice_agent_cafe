@@ -21,6 +21,10 @@ langchain-core
 langchain-groq
 langchain-openai  # also used for NVIDIA's OpenAI-compatible endpoint (AGENT_LLM_PROVIDER="nvidia")
 
+# Phase 4: voice agent, built by hand (no LiveKit/Pipecat) - see release_notes/ for why.
+aiortc          # pure-Python WebRTC: RTCPeerConnection, MediaStreamTrack
+av              # PyAV: audio frame handling and resampling (ffmpeg bindings)
+
 # Phase 1: audio lab
 librosa
 soundfile

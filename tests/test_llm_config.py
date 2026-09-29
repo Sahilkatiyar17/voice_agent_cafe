@@ -10,6 +10,8 @@ import backend.agent.llm as llm_module
 from backend.agent.llm import _configure_langsmith, get_chat_model
 from backend.config import settings
 
+pytestmark = pytest.mark.no_db  # no network, no database - runs without Postgres
+
 
 def test_langsmith_env_vars_are_set_when_tracing_is_on(monkeypatch):
     monkeypatch.setattr(settings, "langsmith_tracing", True)

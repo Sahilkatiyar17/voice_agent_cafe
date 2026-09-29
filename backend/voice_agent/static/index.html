@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Voice agent test</title>
+  <style>
+    body { font-family: sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; }
+    button { font-size: 16px; padding: 8px 16px; margin-right: 8px; }
+    #log { background: #111; color: #0f0; padding: 12px; height: 300px; overflow-y: auto;
+           font-family: monospace; font-size: 13px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>Voice agent test (step 3: VAD + endpointing)</h2>
+  <p>Click Start, allow the microphone, then speak. Watch the <b>server terminal</b> - that's
+     where the audio frames are printed. This page only shows the connection steps.</p>
+  <button id="start">Start</button>
+  <button id="stop" disabled>Stop</button>
+  <div id="log"></div>
+
+<script>
+const logEl = document.getElementById("log");
+function log(msg) {
+  logEl.textContent += new Date().toLocaleTimeString() + "  " + msg + "\n";
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+let pc = null;
+let stream = null;
+
+// Wait until the browser has finished collecting its network candidates, so the offer
+// we send already contains all of them (the server does the same before answering).
+function waitForIceGathering(pc) {
+  if (pc.iceGatheringState === "complete") return Promise.resolve();
+  return new Promise(resolve => {
+    pc.addEventListener("icegatheringstatechange", function check() {
+      if (pc.iceGatheringState === "complete") {
+        pc.removeEventListener("icegatheringstatechange", check);
+        resolve();
+      }
+    });
+  });
+}
+
+async function start() {
+  document.getElementById("start").disabled = true;
+  pc = new RTCPeerConnection();
+  pc.addEventListener("connectionstatechange", () => log("connection: " + pc.connectionState));
+
+  // echoCancellation is AEC - the browser does it for us, as planned.
+  stream = await navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+  });
+  log("microphone allowed");
+  stream.getTracks().forEach(track => pc.addTrack(track, stream));
+
+  await pc.setLocalDescription(await pc.createOffer());
+  await waitForIceGathering(pc);
+  log("offer ready, sending to server");
+
+  const response = await fetch("/offer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type }),
+  });
+  await pc.setRemoteDescription(await response.json());
+  log("answer received - audio should now be flowing");
+  document.getElementById("stop").disabled = false;
+}
+
+async function stop() {
+  stream.getTracks().forEach(t => t.stop());
+  pc.close();
+  log("stopped");
+  document.getElementById("start").disabled = false;
+  document.getElementById("stop").disabled = true;
+}
+
+document.getElementById("start").onclick = () => start().catch(e => log("ERROR: " + e));
+document.getElementById("stop").onclick = stop;
+</script>
+</body>
+</html>

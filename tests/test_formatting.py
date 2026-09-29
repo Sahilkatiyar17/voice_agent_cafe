@@ -5,7 +5,11 @@ shape the matching Phase 2 tool actually returns - see backend/tools/*.py) and c
 sentence keeps whatever a later tool call would need (mainly: ids).
 """
 
+import pytest
+
 from backend.agent import formatting as fmt
+
+pytestmark = pytest.mark.no_db  # pure logic - runs without Postgres
 
 
 def test_search_menu_exact_keeps_the_id_for_a_later_add_item_call():
